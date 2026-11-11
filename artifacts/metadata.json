@@ -1,0 +1,67 @@
+{
+  "seed": 42,
+  "lookback": 48,
+  "forecast_horizon_hours": 1,
+  "load_mean": 1.0864845599475577,
+  "load_std": 0.9287213729270289,
+  "feature_mean": [
+    1.0860988281279376,
+    -0.0001078546698368989,
+    -0.0009520944126200901,
+    1.0865102558428654,
+    0.7718891517085844,
+    -0.0002959894094491782,
+    0.0005058057805304256,
+    0.28390272389771826
+  ],
+  "feature_std": [
+    0.9284484048527036,
+    0.6953485855063793,
+    0.9887798464592193,
+    0.45230817633215636,
+    0.3011158321856741,
+    0.7070590513966448,
+    0.7071542649159644,
+    0.45089019423933985
+  ],
+  "feature_names": [
+    "load_kw",
+    "change_1h_kw",
+    "change_24h_kw",
+    "previous_mean_24h_kw",
+    "previous_std_24h_kw",
+    "hour_sin",
+    "hour_cos",
+    "weekend"
+  ],
+  "ae_threshold": 1.4029693603515625,
+  "if_threshold": 0.6196432325860393,
+  "threshold_quantile": 0.99,
+  "train_end_exclusive": 24212,
+  "validation_end_exclusive": 29400,
+  "train_last": "2009-09-20 12:00:00",
+  "validation_first": "2009-09-20 13:00:00",
+  "validation_last": "2010-04-24 16:00:00",
+  "test_first": "2010-04-24 17:00:00",
+  "test_last": "2010-11-26 21:00:00",
+  "total_hours": 34589,
+  "forecast_samples": {
+    "train": 23877,
+    "validation": 5006,
+    "test": 4884
+  },
+  "anomaly_training_samples": 23512,
+  "screened_out_training_samples": 461,
+  "screening": "Load, 1h change, 24h change within six train-only robust standard deviations.",
+  "python": "3.12.14",
+  "versions": {
+    "torch": "2.15.0+cpu",
+    "scikit-learn": "1.8.0",
+    "numpy": "2.3.5",
+    "pandas": "2.2.3",
+    "streamlit": "1.67.0",
+    "plotly": "6.9.0"
+  },
+  "model_version": "powerguard-v1",
+  "model_fingerprint": "30a2147bd80213ca"
+}

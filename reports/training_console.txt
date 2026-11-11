@@ -1,0 +1,121 @@
+LoadLSTM 01: train=0.7391 val=0.4637
+LoadLSTM 02: train=0.4345 val=0.3919
+LoadLSTM 03: train=0.4074 val=0.3737
+LoadLSTM 04: train=0.3964 val=0.3696
+LoadLSTM 05: train=0.3903 val=0.3615
+LoadLSTM 06: train=0.3826 val=0.3576
+LoadLSTM 07: train=0.3794 val=0.3490
+LoadLSTM 08: train=0.3759 val=0.3506
+LoadLSTM 09: train=0.3750 val=0.3428
+LoadLSTM 10: train=0.3716 val=0.3469
+LoadLSTM 11: train=0.3696 val=0.3482
+LoadLSTM 12: train=0.3675 val=0.3431
+LoadLSTM 13: train=0.3672 val=0.3449
+LoadLSTM 14: train=0.3655 val=0.3438
+LoadAutoencoder 01: train=0.9363 val=0.7855
+LoadAutoencoder 02: train=0.6911 val=0.5670
+LoadAutoencoder 03: train=0.5412 val=0.5190
+LoadAutoencoder 04: train=0.5087 val=0.4978
+LoadAutoencoder 05: train=0.4910 val=0.4833
+LoadAutoencoder 06: train=0.4782 val=0.4743
+LoadAutoencoder 07: train=0.4692 val=0.4686
+LoadAutoencoder 08: train=0.4635 val=0.4648
+LoadAutoencoder 09: train=0.4592 val=0.4611
+LoadAutoencoder 10: train=0.4561 val=0.4592
+LoadAutoencoder 11: train=0.4535 val=0.4560
+LoadAutoencoder 12: train=0.4509 val=0.4542
+LoadAutoencoder 13: train=0.4486 val=0.4521
+LoadAutoencoder 14: train=0.4465 val=0.4496
+LoadAutoencoder 15: train=0.4442 val=0.4468
+LoadAutoencoder 16: train=0.4421 val=0.4447
+LoadAutoencoder 17: train=0.4399 val=0.4427
+LoadAutoencoder 18: train=0.4380 val=0.4399
+LoadAutoencoder 19: train=0.4360 val=0.4380
+LoadAutoencoder 20: train=0.4340 val=0.4341
+LoadAutoencoder 21: train=0.4323 val=0.4314
+LoadAutoencoder 22: train=0.4307 val=0.4295
+LoadAutoencoder 23: train=0.4289 val=0.4264
+LoadAutoencoder 24: train=0.4274 val=0.4248
+LoadAutoencoder 25: train=0.4260 val=0.4223
+LoadAutoencoder 26: train=0.4245 val=0.4202
+LoadAutoencoder 27: train=0.4229 val=0.4181
+LoadAutoencoder 28: train=0.4218 val=0.4164
+LoadAutoencoder 29: train=0.4206 val=0.4136
+LoadAutoencoder 30: train=0.4195 val=0.4121
+{
+  "forecast": [
+    {
+      "model": "LSTM",
+      "mae_kw": 0.34626232574267407,
+      "rmse_kw": 0.49455524889041846,
+      "samples": 4884
+    },
+    {
+      "model": "Persistence",
+      "mae_kw": 0.3903018442143442,
+      "rmse_kw": 0.589614536613772,
+      "samples": 4884
+    },
+    {
+      "model": "Previous day",
+      "mae_kw": 0.5158035658181844,
+      "rmse_kw": 0.766662435535785,
+      "samples": 4884
+    }
+  ],
+  "injected_event_detection": {
+    "Autoencoder": {
+      "precision": 0.2916666666666667,
+      "recall": 0.2346368715083799,
+      "f1": 0.26006191950464397,
+      "tp": 42,
+      "fp": 102,
+      "fn": 137,
+      "tn": 4651,
+      "background_alert_rate": 0.02146013044393015
+    },
+    "Isolation Forest": {
+      "precision": 0.6521739130434783,
+      "recall": 0.33519553072625696,
+      "f1": 0.44280442804428044,
+      "tp": 60,
+      "fp": 32,
+      "fn": 119,
+      "tn": 4721,
+      "background_alert_rate": 0.006732589943193772
+    }
+  },
+  "injected_event_types": {
+    "Spike": {
+      "hours": 15,
+      "autoencoder_recall": 0.8666666666666667,
+      "isolation_forest_recall": 1.0
+    },
+    "Sustained high load": {
+      "hours": 112,
+      "autoencoder_recall": 0.23214285714285715,
+      "isolation_forest_recall": 0.4017857142857143
+    },
+    "Near-zero drop": {
+      "hours": 52,
+      "autoencoder_recall": 0.057692307692307696,
+      "isolation_forest_recall": 0.0
+    }
+  },
+  "unmodified_test_alerts": {
+    "hours": 4932,
+    "autoencoder": 31,
+    "isolation_forest": 12
+  },
+  "injection_label_scope": "Pointwise recovery of known injected modifications. Unmodified readings are background, not verified fault-free labels. These scores are not real fault accuracy.",
+  "latency": {
+    "median_ms": 59.86506299996108,
+    "p95_ms": 202.78964905008914,
+    "iterations": 100,
+    "scope": "CPU: feature construction, LSTM and both detectors for one latest hour; excludes model loading, network, SQLite and dashboard rendering.",
+    "machine": "x86_64",
+    "processor": "",
+    "threads": 2
+  },
+  "training_seconds": 141.64288766699997
+}

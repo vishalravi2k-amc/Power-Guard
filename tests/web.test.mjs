@@ -41,3 +41,18 @@ test('Location forecast is relative to data end and scores preserve missing evid
  assert.equal(s.window_hours,24);assert.ok(s.map_url.includes('mlat=12.9'));
  rows.at(-1).ae_score=null;assert.equal(summarizeLocation(site,model).status,'Incomplete evidence');
 });
+
+test('City grids isolate meter identities and preserve parents through apartment drilldown',async()=>{
+ const {CITIES,network}=await import('../web/grid.js');
+ const ids=new Set();
+ for(const city of CITIES)for(const area of city.areas){
+  const region=network(city.id,area);
+  for(const n of region){assert.ok(!ids.has(n.id));ids.add(n.id);if(n.parent)assert.ok(region.some(p=>p.id===n.parent));}
+  for(const a of ['a','b','c']){
+   const detail=network(city.id,area,a),main=detail.find(n=>n.type==='Apartment');
+   assert.ok(region.some(n=>n.id===main.id));
+   for(const n of detail.filter(n=>n.type==='Block meter')){assert.equal(n.parent,main.id);assert.ok(!ids.has(n.id));ids.add(n.id);}
+  }
+ }
+ assert.throws(()=>network('missing','JP Nagar'));assert.throws(()=>network('bengaluru','missing'));
+});

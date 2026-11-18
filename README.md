@@ -142,3 +142,7 @@ P Vishal Ravi · Sagar J · Jeevan U Acharya · Varshith M
 Guide: **Dr. Nandeeswar S B**
 
 Dataset licensing and attribution: [DATA_LICENSE.md](DATA_LICENSE.md).
+
+### City → region → apartment explorer
+
+The public site opens an interactive grid schematic across six cities and 19 named regions. Select apartments and block meters, attach analyzed CSVs, or explicitly try UCI demonstration readings. Example assets and connections are not verified grid infrastructure. See [web guide](docs/WEB_GUIDE.md) for the workflow and data limits.

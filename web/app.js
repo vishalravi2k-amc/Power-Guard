@@ -1,3 +1,4 @@
+import {createGridExplorer} from './grid.js';
 import {validateLocation,summarizeLocation} from './locations.js';
 import {finite,forecast,dateOf,stamp,HOUR} from './engine.js';
 const $=s=>document.querySelector(s),$$=s=>[...document.querySelectorAll(s)],icon=n=>`<svg aria-hidden="true"><use href="#${n}"/></svg>`;
@@ -12,7 +13,7 @@ let source='original',detector='ae',cursor=216,windowHours=72,playing=null,rows=
 try{statusStore=JSON.parse(localStorage.getItem('powerguard-reviewed-v2')||'{}');if(typeof statusStore!=='object'||!statusStore)statusStore={};}catch{}
 const threshold=()=>model.meta[`${detector}_threshold`],score=r=>r[`${detector}_score`],isAlert=r=>finite(score(r))&&score(r)>threshold();
 const reviewed=r=>!!statusStore[`${source==='upload'?uploadId:source}:${detector}:${r.timestamp}`];
-const page=()=>['overview','locations','alerts','models','data','docs'].includes(location.hash.slice(1))?location.hash.slice(1):'overview';
+const page=()=>['grid','overview','locations','alerts','models','data','docs'].includes(location.hash.slice(1))?location.hash.slice(1):'grid';
 const detectorName=()=>detector==='ae'?'Autoencoder':'Isolation Forest';
 const sourceName=()=>source==='original'?'Original UCI readings':source==='challenge'?'Injected event challenge':uploadName;
 function toast(message){$('#toast').textContent=message;$('#toast').classList.add('show');setTimeout(()=>$('#toast').classList.remove('show'),3500);}
@@ -92,17 +93,19 @@ function locationsPage(){
  <div class="callout neutral"><strong>For the final presentation:</strong> demonstrate two or more separately identified meter datasets, compare forecasts and flagged hours, then open a location and inspect its alerts. If using the UCI sample, call the location assignment a demonstration. Real fault localization additionally requires meter-to-feeder/transformer connections, voltage/current or outage signals, and confirmed event labels.</div>`;
 }
 
+const gridExplorer=createGridExplorer({model:()=>model,original:()=>original,upload:()=>uploadRows?{rows:uploadRows,name:uploadName,id:uploadId}:null,render:()=>render(),analyze:b=>{if(b.demo){source='original';rows=original;}else{uploadRows=b.rows;uploadName=b.name;uploadId=b.id;source='upload';rows=b.rows;}stop();cursor=rows.length-1;location.hash='overview';render();}});
 function render(){
-  const p=page(),titles={overview:'Overview',locations:'Location monitoring',alerts:'Alert register',models:'Model performance',data:'Data explorer',docs:'Documentation'};
+  const p=page(),titles={grid:'City grid explorer',overview:'Overview',locations:'Location monitoring',alerts:'Alert register',models:'Model performance',data:'Data explorer',docs:'Documentation'};
   $('#breadcrumb-title').textContent=titles[p];$$('nav a').forEach(a=>{a.classList.toggle('active',a.dataset.page===p);a.setAttribute('aria-current',a.dataset.page===p?'page':'false');});
   $('#nav-alert-count').textContent=rows.slice(48,cursor+1).filter(isAlert).length;
-  $('#main').innerHTML=({overview,locations:locationsPage,alerts:alertsPage,models:modelsPage,data:dataPage,docs:docsPage})[p]();
+  $('#main').innerHTML=({grid:gridExplorer.page,overview,locations:locationsPage,alerts:alertsPage,models:modelsPage,data:dataPage,docs:docsPage})[p]();
   bind();
 }
 function download(data,filename){const columns=['timestamp','load_kw','observed','forecast_kw','persistence_kw','previous_day_kw','ae_score','if_score','ae_alert','if_alert','injected','event_type','review_status'];const cell=v=>{let s=v==null?'':String(v);if(/^[=+@\-]/.test(s)&&typeof v==='string')s="'"+s;return '"'+s.replace(/"/g,'""')+'"';};const csv=[columns.join(','),...data.map(r=>columns.map(k=>cell(k==='review_status'?(isAlert(r)?(reviewed(r)?'Reviewed':'Needs review'):'Not flagged'):r[k])).join(','))].join('\r\n');const url=URL.createObjectURL(new Blob([csv],{type:'text/csv;charset=utf-8'})),a=document.createElement('a');a.href=url;a.download=filename;a.click();setTimeout(()=>URL.revokeObjectURL(url),1000);toast(`Exported ${data.length} readings.`);}
 function on(id,event,fn){const el=$(id);if(el)el.addEventListener(event,fn);}
 function changeSource(value){stop();source=value;rows=value==='original'?original:value==='challenge'?challenge:uploadRows;cursor=Math.min(216,rows.length-1);selectedDate='';alertPage=0;render();}
 function bind(){
+  if(page()==='grid')gridExplorer.bind();
   on('#location-form','submit',e=>{e.preventDefault();try{if(!uploadRows)throw Error('Analyze a CSV first.');const fields=Object.fromEntries(new FormData(e.target));const info=validateLocation(fields);const id=uploadId;const existing=locations.findIndex(s=>s.id===id);if(existing>=0)throw Error('This dataset is already assigned to '+locations[existing].name+'. Upload a different meter dataset to compare sites.');locations.push({...info,id,filename:uploadName,rows:uploadRows});locationMessage='Location added. Forecasts use this dataset’s timestamps.';render();}catch(err){locationMessage=err.message;render();}});
   $$('.open-location').forEach(b=>b.onclick=()=>{const site=locations[Number(b.dataset.index)];uploadRows=site.rows;uploadName=site.filename;uploadId=site.id;changeSource('upload');cursor=rows.length-1;location.hash='overview';render();});
   on('#export-locations','click',()=>{if(!locations.length){toast('Add a location first.');return;}const result={generated_at:new Date().toISOString(),scope:'User-assigned meter coordinates; not confirmed grid faults or route safety',model_version:model.meta.model_version,locations:locations.map(({rows,...site},i)=>({...site,...summarizeLocation(locations[i],model)}))};const url=URL.createObjectURL(new Blob([JSON.stringify(result,null,2)],{type:'application/json'}));const a=document.createElement('a');a.href=url;a.download='power_guard_locations.json';a.click();setTimeout(()=>URL.revokeObjectURL(url),1000);toast('Location report exported.');});

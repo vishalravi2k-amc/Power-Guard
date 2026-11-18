@@ -3,7 +3,7 @@
 ## Automated results
 
 - `python -m pytest -q tests/test_pipeline.py`: **13 passed**.
-- `node --test tests/web.test.mjs`: **15 passed**.
+- `node --test tests/web.test.mjs`: **16 passed**.
 - `node --check web/app.js` and `node --check web/engine.js`: passed.
 - Static website build: passed.
 
@@ -26,3 +26,9 @@ Windows/macOS launchers and the optional Docker recipe remain untested on those 
 ## Location monitoring update
 
 Added coordinate/provenance validation and per-meter next-hour summary tests. Browser verification registered the real 240-row UCI sample as an explicitly labeled demonstration placement, confirmed the 2007-02-06 09:00 forecast and 24-hour coverage, exported the location report and opened the correct uploaded dataset in Overview. No Bengaluru meter or utility connection was claimed or tested. Location registrations are session-only. The earlier mobile checks cover the original pages; the new location page was checked on desktop only.
+
+## City grid explorer update
+
+Validated city/area switching, apartment block drilldown, UCI demo attachment, forecast drillthrough, and isolation across cities in Chromium. A 390px iframe displayed 375px document and scroll widths with no page-level horizontal overflow; block selection and demo forecast worked. Added a topology regression covering unique meter identities across all cities/regions and consistent parent links in apartment drilldown. Physical iOS/Safari was not tested.
+
+Uploaded the 240-row sample through the browser and attached it to Apartment B; confirmed the dated 1.77 kW forecast, rejection of duplicate attachment to Apartment C, network JSON download and detachment.

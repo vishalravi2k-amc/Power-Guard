@@ -1,0 +1,6 @@
+{
+  "name": "power-guard",
+  "private": true,
+  "type": "module",
+  "scripts": {"build": "node scripts/build_web.mjs", "test": "node --test tests/web.test.mjs"}
+}

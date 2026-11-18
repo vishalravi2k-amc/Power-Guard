@@ -1,162 +1,142 @@
-# Power Guard — working review prototype
+# Power Guard
 
-**AI-Driven Micro-Grid Energy Load Forecasting and Anomaly Detection for Urban Apartments**  
-AMC Engineering College (Autonomous), Department of CSE (AI & ML)  
-Team T2: P Vishal Ravi, Sagar J, Jeevan U Acharya, Varshith M  
-Guide: Dr. Nandeeswar S B
+**AI-driven micro-grid energy load forecasting and anomaly detection for urban apartments.**
 
-This project implements the software workflow in the supplied November 2026 synopsis. It includes a trained LSTM, a trained autoencoder, Isolation Forest, a Streamlit dashboard, historical replay, CSV analysis, SQLite alerts, baseline comparisons and reproducible tests. It runs on a computer with Python; no sensor purchase is needed for this version.
+[Open the working website](https://power-guard-energy.vishalravi20k.chatgpt.site) · [Web guide](docs/WEB_GUIDE.md) · [Evaluation](reports/EVALUATION.md) · [Local Python setup](docs/LOCAL_SETUP.md)
 
-**First action: open the project on a laptop or desktop.** An iPhone can download the ZIP and view documentation, but cannot run this Python application directly.
+Power Guard turns real hourly electricity readings into next-hour forecasts and reviewable anomaly alerts. The website works without a Python installation and performs uploaded-data inference on the visitor's device. The original Streamlit application and reproducible Python training pipeline are included.
 
-## Start on Windows
+The hosted website is **public**: anyone with the link can open it without signing in. This repository is also public. GitHub changes do not automatically redeploy the Sites website.
 
-1. Install **Python 3.12 (64-bit)** from https://www.python.org/downloads/ with the Python launcher enabled.
-2. Extract the entire ZIP. Open the `power_guard` folder, where `app.py` is located.
-3. Double-click **`start_windows.bat`**.
-4. The first launch creates a virtual environment and downloads packages. PyTorch is a large download. Keep the command window open.
-5. Open **http://localhost:8501** if the browser does not open automatically.
-6. Later launches reuse the installed environment. Internet is not needed for the bundled dataset/model demo after installation.
+![Power Guard dashboard](docs/assets/dashboard.jpg)
 
-Do this setup before review day. The saved models are already trained; do not retrain just to launch the demo.
+## What works
 
-Manual Windows commands, from this folder:
+- Responsive dashboard with actual kW readings, a true next-hour LSTM prediction, observed energy estimates in kWh, and quality coverage.
+- Historical replay with dates, time windows, play/pause, reset and advance controls.
+- Original UCI readings and a separately labelled controlled injected-event challenge.
+- Trained autoencoder and Isolation Forest, calibrated thresholds, event filters, per-event review state and CSV export.
+- CSV import with validation, a background worker, progress and cancellation. All three trained models run locally in JavaScript; no readings are sent to a server.
+- Data provenance, licenses, measured benchmarks, limitations and project documentation.
+- Python training, Streamlit dashboard, SQLite alerts, model artifacts and parity tests for the browser implementation.
 
-```powershell
-py -3.12 -m venv .venv
-.venv\Scripts\python.exe -m pip install torch==2.15.0 --index-url https://download.pytorch.org/whl/cpu
-.venv\Scripts\python.exe -m pip install -r requirements.txt
-.venv\Scripts\python.exe -m streamlit run app.py --server.address localhost
-```
+## Real data, honest results
 
-## Start on macOS or Linux
+The primary dataset is UCI Individual Household Electric Power Consumption (Hebrail & Berard, DOI [10.24432/C58K54](https://doi.org/10.24432/C58K54), CC BY 4.0). It contains 2,075,259 minute-level measurements from one household in Sceaux, France. The project includes a 34,589-hour derivative with explicit observation flags, past-only short-gap filling, provenance and a checksum.
 
-Use Python 3.12. From the extracted project folder:
+This is a household proxy for the proposed apartment application. It is **not live apartment telemetry**. Injected events are simulated; they are not verified physical faults.
 
-```bash
-bash start_mac_linux.sh
-```
+| Forecast | MAE (kW) | RMSE (kW) | Test hours |
+|---|---:|---:|---:|
+| LSTM | 0.3463 | 0.4946 | 4,884 |
+| Persistence | 0.3903 | 0.5896 | 4,884 |
+| Previous day | 0.5158 | 0.7667 | 4,884 |
 
-Or create `.venv`, install requirements with its Python and run `python -m streamlit run app.py`. On Linux, the launcher installs the CPU build of PyTorch. macOS uses its platform build. The Python application was tested on Linux; the Windows/macOS launchers are provided but have not been executed on those operating systems.
+The LSTM has 11.3% lower MAE than persistence on this chronological test period. This is an error reduction, not “accuracy”.
 
-## Demonstrate in this order
+| Detector | Injected-event precision | Recall | F1 |
+|---|---:|---:|---:|
+| Autoencoder | 0.292 | 0.235 | 0.260 |
+| Isolation Forest | 0.652 | 0.335 | 0.443 |
 
-1. **Monitor & replay / Original UCI readings:** explain actual load, one-hour-ahead forecast and score threshold.
-2. **Injected event challenge:** show a known spike marked with a hollow amber circle and any detector alert as a coral diamond. Advance 24 hours or enable auto replay.
-3. Switch **Autoencoder / Isolation Forest** to compare behavior. Download the alert CSV.
-4. **Model results:** show measured test errors, controlled detection metrics, missed event types and CPU latency.
-5. **Upload readings:** download and re-upload the included sample. Read the domain-shift note.
-6. **Project review:** show the architecture and explain the next development steps.
+Current detectors perform much better on high spikes than sustained increases or near-zero drops. See the [full evaluation](reports/EVALUATION.md) for confusion counts and scope.
 
-See `docs/REVIEW_GUIDE.md` for a short two-presenter script and viva answers. `reports/EVALUATION.md` contains the measured experiment report.
+## Run the website
 
-## What is complete, and what remains
-
-| Implemented in this package | Later work |
-|---|---|
-| UCI hourly preprocessing with explicit quality flags | Representative local apartment data |
-| 48-hour LSTM input and one-hour prediction | Longer horizons and a GRU comparison |
-| Persistence and previous-day benchmarks | Additional sites, seasons and repeated-seed experiments |
-| Dense temporal-feature autoencoder and Isolation Forest | Better sustained/low-load anomaly detection |
-| Validation-calibrated thresholds | Site-specific calibration and verified event labels |
-| Historical replay, CSV import and local alert register | A live meter connector and operational notifications |
-| Test results and documented limitations | Field evaluation of usefulness and savings |
-
-This is an **advisory software prototype**, not a protection controller. It does not operate relays, diagnose physical faults, dispatch batteries, or measure energy savings.
-
-## Folder map
-
-| Path | Purpose |
-|---|---|
-| `app.py` | Dashboard pages, controls, charts and replay |
-| `powerguard/data.py` | UCI conversion, validation, causal features and injected events |
-| `powerguard/models.py` | PyTorch LSTM and autoencoder definitions |
-| `powerguard/inference.py` | Saved-model loading and predictions |
-| `powerguard/alerts.py` | SQLite logging and review status |
-| `scripts/download_data.py` | Rebuild hourly data from the UCI archive |
-| `scripts/train.py` | Training, calibration, test evaluation and latency measurement |
-| `scripts/build_report.py` | Rebuild the readable evaluation report |
-| `artifacts/` | Weights, Isolation Forest and fitted preprocessing parameters |
-| `data/` | Hourly UCI data, provenance and upload sample |
-| `reports/` | Forecasts, challenge results, metrics and test output |
-| `tests/` | Causality, validation, inference, persistence and app tests |
-| `runtime/alerts.db` | Created locally when the app runs; not included in the distribution |
-
-## Reproduce training
-
-The processed dataset is included. Run from the project folder with the virtual environment's Python:
+Requires Node.js 20+ and any static HTTP server. No npm dependencies or API keys are needed.
 
 ```bash
-python scripts/train.py
-python scripts/build_report.py
+git clone https://github.com/vishalravi2k-amc/Power-Guard.git
+cd Power-Guard
+npm test
+npm run build
+python -m http.server 8000 --directory dist
 ```
 
-Default: seed 42, up to 25 LSTM epochs and 30 autoencoder epochs, early stopping after five non-improving validation epochs. This rebuilds model and report files. Stop and restart Streamlit afterward to clear cached models. Exact floating-point results and latency can vary with platform and package versions.
+Open http://localhost:8000. Use an HTTP server; ES modules and web workers do not run reliably from a double-clicked `file://` page. The browser model exports and dataset outputs are already committed, so a web build needs no Python ML packages.
 
-To reproduce preprocessing from the original public archive:
+## Run the Python application
 
-```bash
-python scripts/download_data.py
-python scripts/train.py
-python scripts/build_report.py
-```
+Use Python 3.12. See [the complete setup instructions](docs/LOCAL_SETUP.md). Existing launchers remain available:
 
-To use an already downloaded official archive:
+- Windows: `start_windows.bat`
+- macOS/Linux: `bash start_mac_linux.sh`
 
-```bash
-python scripts/download_data.py --archive /path/to/individual_household.zip
-```
-
-No original minute-level archive is included. The smaller hourly derivative is included with attribution, provenance and a checksum. Uploaded CSVs are analyzed by the saved UCI model; uploading does **not** automatically retrain the model or establish suitability for another site.
-
-## Run tests
+For Linux CPU setup:
 
 ```bash
+python -m venv .venv
+source .venv/bin/activate
+python -m pip install torch==2.15.0 --index-url https://download.pytorch.org/whl/cpu
 python -m pip install -r requirements-dev.txt
-python -m pytest -q
+python -m streamlit run app.py
 ```
 
-The tests require the included model/data/report artifacts. App tests write example events to `runtime/alerts.db`. For a fresh demo, stop the app and remove that local database only if those practice alerts are no longer needed. Reset replay changes the cursor and does not delete saved alerts.
-
-## CSV format
-
-```csv
-timestamp,load_kw
-2026-11-01 00:00:00,0.72
-2026-11-01 01:00:00,0.61
-```
-
-- Supply at least 72 hourly rows for one site, up to 50,000 rows / 10 MB.
-- Each value is **mean active power in kW**, not a cumulative meter counter or kWh reading.
-- Use unique exact-hour timestamps, consistently in the site's local wall-clock time without timezone offsets.
-- Missing hourly slots are marked; forward fill is limited to three hours. Long gaps interrupt model eligibility.
-- The app rejects negative, nonnumeric or nonfinite loads, duplicates, subhourly times and mixed/offset timestamps.
-- No fault labels are required for inference. Uploads do not produce fault precision/recall because no verified labels are available.
-
-## Troubleshooting
-
-| Symptom | Action |
-|---|---|
-| `py` not found on Windows | Install Python 3.12 with its launcher; reopen the command window. |
-| `No matching distribution` | Check 64-bit Python 3.12 and package connectivity. Do not silently change the scikit-learn version used by the saved forest. |
-| Import error | Run the launcher or use `.venv` Python; avoid mixing global Python and the virtual environment. |
-| Port 8501 in use | Run `python -m streamlit run app.py --server.port 8502`. |
-| Next forecast unavailable | The last 48 hours contain a long gap or insufficient history. Use another range/file. |
-| Old results after retraining | Stop Streamlit with Ctrl+C and restart. |
-| Many alerts after upload | The new site's consumption differs from the training household. Collect local data and retrain/calibrate. |
-| Package install interrupted | Launch again. The ready marker is written only after installation succeeds. |
-
-## Optional Docker
+## Reproduce the experiment and web exports
 
 ```bash
-docker build -t power-guard .
-docker run --rm -p 127.0.0.1:8501:8501 -v powerguard-alerts:/app/runtime power-guard
+# Optional: rebuild hourly data from the official UCI archive.
+python scripts/download_data.py
+# Refit models and recompute held-out results.
+python scripts/train.py
+python scripts/build_report.py
+# Export saved model weights, forest trees and historical results.
+python scripts/export_web.py
+python -m pytest -q
+npm test
+npm run build
 ```
 
-The Docker recipe is supplied as an optional path; the container build was not tested in this environment. There is no login system. The default launcher binds to the local computer. Do not expose this prototype publicly without authentication and deployment review.
+`export_web.py` loads only the trusted repository model artifacts. Do not pass untrusted pickle/joblib files to the Python pipeline. The website accepts CSV data only and executes no uploaded model files.
 
-## Dataset attribution
+## Architecture
 
-Georges Hebrail and Alice Berard (2006). *Individual Household Electric Power Consumption*. UCI Machine Learning Repository. DOI: https://doi.org/10.24432/C58K54. Licensed CC BY 4.0: https://creativecommons.org/licenses/by/4.0/.
+```mermaid
+flowchart TD
+    A[UCI minute readings] --> B[Hourly validation and quality flags]
+    B --> C[Chronological train / validation / test]
+    C --> D[LSTM and historical baselines]
+    C --> E[Autoencoder and Isolation Forest]
+    D --> F[Saved models and measured results]
+    E --> F
+    F --> G[Streamlit application]
+    F --> H[Portable browser exports]
+    H --> I[Interactive website]
+    J[Visitor CSV] --> K[Browser worker inference]
+    H --> K
+    K --> I
+```
 
-The included CSV is a modified hourly derivative: minute power aggregated into hourly means, low-coverage hours marked, and short gaps filled from the past. It describes one French household, not measurements from AMC or an Indian apartment. Source timestamps retain their original wall-clock representation. See `data/provenance.json` and `DATA_LICENSE.md`.
+## Repository map
+
+| Location | Purpose |
+|---|---|
+| `web/` | Responsive dashboard, inference engine and worker |
+| `web/models/weights.json` | Portable trained LSTM, autoencoder and forest parameters |
+| `web/data/` | Real historical outputs, metrics, provenance and sample CSV |
+| `powerguard/` | Python preprocessing, model definitions, inference and alerts |
+| `scripts/` | Download, training, reporting, model export and website build |
+| `artifacts/` | Original trained models and preprocessing metadata |
+| `data/` | Full hourly UCI derivative and provenance |
+| `reports/` | Evaluation, prediction CSVs and validation evidence |
+| `tests/` | Python tests, browser engine tests and Python golden cases |
+| `docs/` | Setup, usage, presentation and deployment guides |
+| `.openai/hosting.json` | Identity and static deployment directory for the public Site |
+
+## Verification
+
+26 automated tests pass: 13 Python tests and 13 Node tests. Tests cover dataset integrity, causal features, training-only scaling, input validation, model parity, independently recomputed metrics, alert persistence and Streamlit pages. Browser testing covers real CSV upload/inference, export, replay, detector selection, review actions and responsive layouts. See [validation notes](reports/VALIDATION_NOTES.md).
+
+## Prototype boundary
+
+The software workflow in the synopsis is implemented. Real apartment data, a physical meter connector, shared multiuser alert storage, notifications, site-specific calibration and field evaluation are not included. No grid switching, fault diagnosis, measured savings or production safety certification is claimed. Browser alert reviews stay on the current device; uploaded readings are lost when the page closes unless exported.
+
+## Team
+
+AMC Engineering College, Bengaluru · Department of CSE (AI & ML) · Team T2
+
+P Vishal Ravi · Sagar J · Jeevan U Acharya · Varshith M
+
+Guide: **Dr. Nandeeswar S B**
+
+Dataset licensing and attribution: [DATA_LICENSE.md](DATA_LICENSE.md).

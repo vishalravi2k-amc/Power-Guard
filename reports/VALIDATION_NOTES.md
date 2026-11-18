@@ -1,20 +1,24 @@
-# Validation notes
+# Validation — 18 November 2026
 
-The supplied run passed 19 automated tests, including:
+## Automated results
 
-- Causal historical windows and preceding-only rolling features.
-- Fitting the saved load scaler on training observations only.
-- Exclusion of imputed targets.
-- Injection isolation to the test period.
-- CSV rejection for malformed numeric values, timestamps, duplicate rows and short inputs.
-- Short-gap filling without using future readings.
-- Saved-model outputs matching the supplied forecast and detector CSVs.
-- Recomputed regression metrics and controlled-challenge confusion counts.
-- Persistent SQLite alert deduplication and reviewed status.
-- Streamlit navigation, scenario switching, replay advancement and detector switching using AppTest.
+- `python -m pytest -q tests/test_pipeline.py`: **13 passed**.
+- `node --test tests/web.test.mjs`: **13 passed**.
+- `node --check web/app.js` and `node --check web/engine.js`: passed.
+- Static website build: passed.
 
-See `test_results.txt` for the test run. A host-environment pytest plugin deprecation warning is unrelated to the project.
+Python tests verify the real hourly CSV checksum/provenance, chronological spacing, training-only load scaler, saved model outputs versus the original report, causal forecasting, valid/invalid uploads, short-gap handling, injection isolation, SQLite deduplication/review status, and all four Streamlit pages.
 
-The project was trained and tested with Python 3.12 on Linux. A full visual browser review could not be completed because the available browser could not reach the local application and a local browser process could not start under the host's process restrictions. Streamlit's application tests exercised the Python UI without exceptions. Validate the rendered charts and upload interaction on the presentation laptop before the review.
+Node tests verify six Python golden cases (LSTM predictions, next-hour forecasts, autoencoder and forest scores), actual inference on the sample CSV, exclusion of target/future load, rejected invalid dates/offsets/duplicates/numbers, causal gap filling, independently recomputed test MAE and both challenge confusion matrices. Portable model tolerance is 0.00002 absolute.
 
-Windows/macOS launcher execution, Docker build, physical meter integration, actual apartment data and real fault labels have not been validated. Uploaded-data validation and inference are tested as Python functions; no end-to-end browser file-upload test was completed.
+## Browser verification
+
+The desktop dashboard rendered correctly in Chromium. Tested source switching, 24-hour replay advancement, detector switching, per-alert review, filtering, navigation, CSV import and export. Uploaded the real 240-row sample through the file chooser; the worker completed all three models and produced working chart values and an exported 72-row visible window.
+
+A 390-pixel browser frame tested the responsive overview, model performance and data explorer. Actual document width was 375 pixels after the scrollbar and matched scroll width on those pages: no page-level horizontal overflow. Table scrolling and horizontal navigation are intentional. Physical iOS/Safari testing was not available.
+
+## Limits
+
+The existing measured experiment remains unchanged; no newly fabricated training metrics are substituted. The sample upload is an integration test, not a new generalization result. Current anomaly recall remains weak on sustained high load and near-zero drops. Python latency results are not browser or end-to-end telemetry timing. No physical meter, apartment deployment, external notifications, shared alert database or savings measurement was tested.
+
+Windows/macOS launchers and the optional Docker recipe remain untested on those platforms. The original `reports/test_results.txt` describes an earlier package run; the current test suite is committed under `tests/` and the counts above refer to this update.

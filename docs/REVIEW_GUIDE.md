@@ -23,3 +23,7 @@
 **Is the website pretending to run ML?** No. Historical outputs are model-produced. New next-hour predictions and uploaded-file analysis execute exported trained weights and trees in JavaScript, checked against Python reference results.
 
 **What remains?** Representative apartment data, site calibration, verified event labels, live meter integration, multiuser persistence and field evaluation. These are outside this household-proxy software prototype.
+
+## Location-aware extension
+
+Present this as “Power Guard: Location-aware Energy Forecasting and Anomaly Monitoring”. Upload at least two distinct meter datasets, provide their areas/GPS coordinates and show the timestamped comparison. Explain that a location pin identifies a supplied meter, not a model-discovered fault. Use explicit demonstration provenance for any UCI data assigned to Bengaluru coordinates. Avoid claiming “unsafe neighbourhoods”, real outages or an exact failed transformer from household kW alone.

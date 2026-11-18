@@ -7,3 +7,5 @@
 @media(prefers-reduced-motion:no-preference){main{animation:arrive .25s ease-out}@keyframes arrive{from{opacity:.5;transform:translateY(5px)}to{opacity:1;transform:none}}}
 
 @media(max-width:650px){nav{scrollbar-width:none}nav::-webkit-scrollbar{display:none}}
+
+.location-form{display:grid;gap:12px;margin:18px 0}.location-form label{display:grid;gap:5px;font-size:11px;color:#697d5d}.location-form input{min-width:0;width:100%;padding:10px;border:1px solid #dce3d5;border-radius:6px;background:#fcfdf9}.location-form .grid-2{gap:12px;margin:0}.location-form .small-note{margin:0}

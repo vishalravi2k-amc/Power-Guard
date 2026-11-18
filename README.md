@@ -12,6 +12,8 @@ The hosted website is **public**: anyone with the link can open it without signi
 
 ## What works
 
+- Location monitoring: assign uploaded meter files to localities/GPS pins, compare timestamped forecasts and review evidence, and export a location report. Location metadata is user-provided; this is not a citywide outage or safe-route map.
+
 - Responsive dashboard with actual kW readings, a true next-hour LSTM prediction, observed energy estimates in kWh, and quality coverage.
 - Historical replay with dates, time windows, play/pause, reset and advance controls.
 - Original UCI readings and a separately labelled controlled injected-event challenge.
@@ -125,7 +127,7 @@ flowchart TD
 
 ## Verification
 
-26 automated tests pass: 13 Python tests and 13 Node tests. Tests cover dataset integrity, causal features, training-only scaling, input validation, model parity, independently recomputed metrics, alert persistence and Streamlit pages. Browser testing covers real CSV upload/inference, export, replay, detector selection, review actions and responsive layouts. See [validation notes](reports/VALIDATION_NOTES.md).
+28 automated tests pass: 13 Python tests and 15 Node tests. Tests cover dataset integrity, causal features, training-only scaling, input validation, model parity, independently recomputed metrics, alert persistence and Streamlit pages. Browser testing covers real CSV upload/inference, export, replay, detector selection, review actions and responsive layouts. See [validation notes](reports/VALIDATION_NOTES.md).
 
 ## Prototype boundary
 

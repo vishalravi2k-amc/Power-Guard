@@ -52,3 +52,11 @@ The UI uses ES modules, SVG charts and a module web worker. It has no JavaScript
 5. Publish the matching `dist/` to the existing Sites project. Its ID is in `.openai/hosting.json`; do not create a duplicate project.
 
 GitHub CI runs tests and builds the static bundle. It does not change Site permissions or deploy public Pages. A Pages deployment is an optional separate hosting choice; follow [GitHub's Pages guide](https://docs.github.com/en/pages/getting-started-with-github-pages/creating-a-github-pages-site) and [custom workflow guide](https://docs.github.com/en/pages/getting-started-with-github-pages/using-custom-workflows-with-github-pages) only when public hosting is intended.
+
+## Location monitoring
+
+Upload one hourly CSV per meter in Data explorer, then open Location monitoring. Enter a site name, area and meter GPS coordinates and specify whether the readings are user-supplied local readings or a demonstration/sample mapped to a location. The built-in UCI sample must be labelled as demonstration if placed in Bengaluru. Coordinates are supplied by the user; they are not geocoded or independently verified.
+
+Register additional distinct meter files to compare their last 24 hours. Identical dataset content cannot be registered as multiple meters. The table shows forecast timestamp, flagged/scored hours, observed coverage, and review status. Missing scores yield “Incomplete evidence”. “No flags in window” is not a safe-area or reliability determination. The next forecast is one hour after the final source timestamp, not a live current-time prediction.
+
+Open analysis to inspect a meter's detailed charts and alerts, or View GPS pin to send those coordinates to OpenStreetMap in a new tab. Export location report saves the summary and provenance as JSON. Sites and readings remain in session memory; the export does not contain the underlying CSV data. Different time periods and different load scales are not directly comparable; local calibration remains necessary. Feeder/transformer topology, outage/voltage signals and verified fault labels are required to move from meter anomalies to grid-fault localization.

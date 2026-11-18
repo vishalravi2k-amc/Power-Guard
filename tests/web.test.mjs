@@ -27,3 +27,17 @@ test('Both challenge confusion matrices match saved measured metrics',()=>{
  const m=JSON.parse(readFileSync('reports/metrics.json'));
  for(const [prefix,name] of [['ae','Autoencoder'],['if','Isolation Forest']]){const counts={tp:0,fp:0,fn:0,tn:0};for(const r of rows){const positive=r[`${prefix}_score`]>model.meta[`${prefix}_threshold`];counts[r.injected?(positive?'tp':'fn'):(positive?'fp':'tn')]++;}for(const k of Object.keys(counts))assert.equal(counts[k],m.injected_event_detection[name][k]);}
 });
+
+const {validateLocation,summarizeLocation}=await import('../web/locations.js');
+test('Location metadata requires explicit valid coordinates and provenance',()=>{
+ assert.throws(()=>validateLocation({name:'A',area:'B',latitude:'',longitude:'77',provenance:'local'}),/both GPS/);
+ assert.throws(()=>validateLocation({name:'A',area:'B',latitude:91,longitude:77,provenance:'local'}),/valid latitude/);
+ const m=validateLocation({name:' A ',area:' JP Nagar ',latitude:'12.9',longitude:'77.6',provenance:'demonstration'});assert.equal(m.name,'A');assert.equal(m.provenance,'demonstration');
+});
+test('Location forecast is relative to data end and scores preserve missing evidence',()=>{
+ const rows=JSON.parse(readFileSync('web/data/original.json')).slice(48,120);
+ const site={rows,latitude:12.9,longitude:77.6};const s=summarizeLocation(site,model);
+ assert.equal(dateOf(s.forecast_timestamp)-dateOf(rows.at(-1).timestamp),HOUR);
+ assert.equal(s.window_hours,24);assert.ok(s.map_url.includes('mlat=12.9'));
+ rows.at(-1).ae_score=null;assert.equal(summarizeLocation(site,model).status,'Incomplete evidence');
+});
